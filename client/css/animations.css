@@ -1,0 +1,340 @@
+/* ============================================================================
+   MOMENTUM — animations.css
+   Todos os @keyframes e classes de animação/microinteração do app, num só
+   lugar. Aplicadas via classes utilitárias (ex.: .anim-stagger-in) ou
+   diretamente por JS (ex.: componentes de gráfico/confetti).
+   ============================================================================ */
+
+/* ---- 1. Entrada de página: fade + slide-up escalonado (stagger) ---- */
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.anim-stagger-in > * {
+  opacity: 0;
+  animation: fadeSlideUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+/* delay escalonado até 12 itens; itens além disso reusam o último delay */
+.anim-stagger-in > *:nth-child(1) { animation-delay: 0.02s; }
+.anim-stagger-in > *:nth-child(2) { animation-delay: 0.07s; }
+.anim-stagger-in > *:nth-child(3) { animation-delay: 0.12s; }
+.anim-stagger-in > *:nth-child(4) { animation-delay: 0.17s; }
+.anim-stagger-in > *:nth-child(5) { animation-delay: 0.22s; }
+.anim-stagger-in > *:nth-child(6) { animation-delay: 0.27s; }
+.anim-stagger-in > *:nth-child(7) { animation-delay: 0.32s; }
+.anim-stagger-in > *:nth-child(8) { animation-delay: 0.37s; }
+.anim-stagger-in > *:nth-child(n+9) { animation-delay: 0.42s; }
+
+/* ---- 1b. Transição entre páginas (router): fade out do conteúdo antigo
+   antes de trocar o innerHTML; o conteúdo novo já entra visível e usa seu
+   próprio .anim-stagger-in por baixo. ---- */
+#app {
+  transition: opacity 0.14s ease, transform 0.14s ease;
+}
+#app.route-fade-out {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+/* ---- 1c. Splash de boot (ver #boot-splash no index.html) ---- */
+@keyframes breathe {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(0.92); opacity: 0.75; }
+}
+.breathe {
+  animation: breathe 1.4s ease-in-out infinite;
+}
+#boot-splash {
+  transition: opacity 0.25s ease;
+}
+#boot-splash.splash-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ---- 2. Ripple + hover lift em botões ---- */
+@keyframes ripple {
+  from {
+    transform: scale(0);
+    opacity: 0.45;
+  }
+  to {
+    transform: scale(2.8);
+    opacity: 0;
+  }
+}
+.ripple-el {
+  position: absolute;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.6);
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+  transform: scale(0);
+  animation: ripple 0.6s ease-out forwards;
+}
+
+/* ---- 3. Skeleton loader (shimmer) ---- */
+@keyframes shimmer {
+  0% { background-position: -300px 0; }
+  100% { background-position: 300px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--glass) 25%, rgba(255, 255, 255, 0.08) 37%, var(--glass) 63%);
+  background-size: 600px 100%;
+  animation: shimmer 1.4s linear infinite;
+  border-radius: 12px;
+}
+
+/* ---- 4. Drag shadow (SortableJS ghost/chosen) ---- */
+.sortable-ghost {
+  opacity: 0.35;
+}
+.sortable-chosen {
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5);
+  transform: rotate(-1deg) scale(1.02);
+}
+.sortable-drag {
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.55);
+}
+
+/* ---- 5. Progress ring (metas de 180 dias) ---- */
+.progress-ring circle {
+  transition: stroke-dashoffset 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* ---- 6. Check com SVG stroke-draw (rotina/treino concluído) ---- */
+@keyframes strokeDraw {
+  from { stroke-dashoffset: 32; }
+  to { stroke-dashoffset: 0; }
+}
+.check-draw path {
+  stroke-dasharray: 32;
+  stroke-dashoffset: 32;
+  animation: strokeDraw 0.35s ease-out forwards;
+}
+
+/* ---- 7. Gradiente animado no header (finanças / metas) ---- */
+@keyframes gradientFlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.gradient-header {
+  background: linear-gradient(120deg, #0d9488, var(--accent), var(--red), #0d9488);
+  background-size: 300% 300%;
+  animation: gradientFlow 18s ease infinite;
+  position: relative;
+}
+.gradient-header::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.08), transparent 60%);
+  pointer-events: none;
+}
+
+/* ---- 8. Modal scale + fade in ---- */
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+@keyframes backdropIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.modal-backdrop {
+  animation: backdropIn 0.2s ease forwards;
+}
+.modal-panel {
+  animation: modalIn 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* ---- 9. Sidebar — magic line (indicador ativo deslizante) ---- */
+.sidebar-indicator {
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), height 0.3s ease;
+}
+
+/* ---- 10. Toast notifications ---- */
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes toastOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.96);
+  }
+}
+.toast-in { animation: toastIn 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+.toast-out { animation: toastOut 0.2s ease forwards; }
+
+/* ---- 11. Contadores animados (count-up) — a contagem em si é feita via JS
+   (requestAnimationFrame), aqui só o "pop" sutil quando o valor assenta ---- */
+@keyframes countSettle {
+  0% { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+.count-settle {
+  animation: countSettle 0.25s ease-out;
+}
+
+/* ---- 12. Draw-in de gráficos (barra ativa com glow) ---- */
+@keyframes barGrow {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+.chart-bar {
+  transform-origin: bottom;
+  animation: barGrow 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+.chart-bar-active {
+  filter: drop-shadow(0 0 12px rgba(255, 122, 0, 0.55));
+}
+
+/* ---- 13. Confetti canvas (fica por cima de tudo, sem bloquear clique) ---- */
+.confetti-canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 200;
+}
+
+/* ---- 14. Hover lift genérico pra cards clicáveis ---- */
+.card-hover {
+  transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.card-hover:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+}
+
+/* ---- 15. Empty state ícone flutuante ---- */
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.float-slow {
+  animation: floatSlow 4s ease-in-out infinite;
+}
+
+/* ---- 16. Mesh gradient de fundo (Dashboard) ----
+   Três manchas radiais grandes e borradas (laranja/azul/rosa da paleta),
+   cada uma deslizando devagar num loop independente — dá a sensação de
+   "vivo" sem chamar atenção. Fica atrás de tudo (z-index baixo, pointer-
+   events desligado) e é coberta pelo blur dos glass-cards por cima. */
+@keyframes meshDriftA {
+  0%   { transform: translate(-8%, -6%) scale(1); }
+  50%  { transform: translate(6%, 8%) scale(1.15); }
+  100% { transform: translate(-8%, -6%) scale(1); }
+}
+@keyframes meshDriftB {
+  0%   { transform: translate(10%, -4%) scale(1.1); }
+  50%  { transform: translate(-6%, 10%) scale(0.95); }
+  100% { transform: translate(10%, -4%) scale(1.1); }
+}
+@keyframes meshDriftC {
+  0%   { transform: translate(-4%, 10%) scale(0.9); }
+  50%  { transform: translate(8%, -8%) scale(1.1); }
+  100% { transform: translate(-4%, 10%) scale(0.9); }
+}
+.mesh-bg {
+  position: fixed;
+  inset: 0;
+  /* negativo de propósito: z-index:0 pintaria ACIMA do conteúdo estático
+     (sidebar, cards) na ordem de pintura do CSS — só z-index negativo fica
+     atrás de irmãos sem position, na frente só do próprio fundo sólido. */
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.mesh-bg span {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(90px);
+  opacity: 0.35;
+  will-change: transform;
+}
+.mesh-bg span:nth-child(1) {
+  width: 42vw;
+  height: 42vw;
+  top: -10%;
+  left: 8%;
+  background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+  animation: meshDriftA 26s ease-in-out infinite;
+}
+.mesh-bg span:nth-child(2) {
+  width: 38vw;
+  height: 38vw;
+  top: 15%;
+  right: -8%;
+  background: radial-gradient(circle, var(--blue-glow) 0%, transparent 70%);
+  animation: meshDriftB 32s ease-in-out infinite;
+}
+.mesh-bg span:nth-child(3) {
+  width: 32vw;
+  height: 32vw;
+  bottom: -12%;
+  left: 30%;
+  background: radial-gradient(circle, var(--red) 0%, transparent 70%);
+  opacity: 0.2;
+  animation: meshDriftC 38s ease-in-out infinite;
+}
+:root[data-theme="light"] .mesh-bg span {
+  /* cores saturadas destacam muito mais contra fundo claro do que escuro —
+     precisa de bem menos opacidade pra manter o mesmo efeito "sutil" */
+  opacity: 0.09;
+}
+
+/* ---- 17. Profundidade extra nos glass-cards (inner top highlight) ----
+   Uma linha clara sutil no topo, como luz pegando a borda de vidro —
+   reforça o efeito "vidro" além do blur/transparência já existentes. */
+.glass-card,
+.glass-panel {
+  position: relative;
+}
+.glass-card::before,
+.glass-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 40%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* ---- Respeita usuários com preferência por menos movimento ---- */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

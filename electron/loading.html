@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<title>Marshal Organization</title>
+<style>
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: #0a0a0b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: -apple-system, "Segoe UI", Inter, Arial, sans-serif;
+  }
+  .wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+  .logo {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: linear-gradient(160deg, #afdef5, #2d96cd);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 22px;
+    color: #ffffff;
+    animation: breathe 1.4s ease-in-out infinite;
+  }
+  @keyframes breathe {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(0.92); opacity: 0.75; }
+  }
+  .msg {
+    color: #8b8b93;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-family: "Segoe UI", monospace;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="logo">M</div>
+    <div class="msg" id="msg">Iniciando…</div>
+  </div>
+</body>
+</html>

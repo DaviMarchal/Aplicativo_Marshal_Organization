@@ -1,0 +1,69 @@
+{
+  "name": "momentum",
+  "version": "1.0.0",
+  "description": "App pessoal de produtividade — Rotina, Tasks, Finanças, Notes, Metas e Academia",
+  "private": true,
+  "main": "electron/main.js",
+  "scripts": {
+    "build:css": "tailwindcss -i ./client/css/tailwind.css -o ./client/css/output.css --minify",
+    "watch:css": "tailwindcss -i ./client/css/tailwind.css -o ./client/css/output.css --watch",
+    "start": "node server/index.js",
+    "dev": "concurrently -k -n CSS,SERVER -c yellow,cyan \"npm:watch:css\" \"nodemon server/index.js\"",
+    "electron": "electron .",
+    "electron:dev": "npm run build:css && electron .",
+    "dist": "npm run build:css && electron-builder",
+    "build:web": "node scripts/prepare-web-build.js && npm run build:css"
+  },
+  "dependencies": {
+    "@fontsource/inter": "^5.0.18",
+    "@fontsource/jetbrains-mono": "^5.0.20",
+    "bcryptjs": "^3.0.3",
+    "canvas-confetti": "^1.9.3",
+    "chart.js": "^4.4.4",
+    "cors": "^2.8.6",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-mysql-session": "^3.0.3",
+    "express-session": "^1.19.0",
+    "gsap": "^3.12.5",
+    "mysql2": "^3.11.0",
+    "sortablejs": "^1.15.2"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "electron": "^31.3.1",
+    "electron-builder": "^24.13.3",
+    "nodemon": "^3.1.4",
+    "tailwindcss": "^3.4.10"
+  },
+  "build": {
+    "appId": "com.davi.marshalorganization",
+    "productName": "Marshal Organization",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "electron/**/*",
+      "server/**/*",
+      "client/**/*",
+      "!client/vendor/**/*",
+      "database/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "vendor/mysql-embedded",
+        "to": "mysql-embedded"
+      }
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "client/assets/icon.ico",
+      "signAndEditExecutable": false
+    }
+  },
+  "allowScripts": {
+    "electron@31.7.7": true
+  }
+}

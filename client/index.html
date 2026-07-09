@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Só usado no deploy web (Netlify + backend em host separado). Deixe
+       vazio pro app desktop/dev — "" cai no padrão relativo "/api", que já
+       funciona porque ali front e API são o mesmo servidor. -->
+  <meta name="api-base" content="" />
+  <title>Marshal Organization</title>
+
+  <link rel="stylesheet" href="/vendor/fonts/inter/index.css" />
+  <link rel="stylesheet" href="/vendor/fonts/jetbrains-mono/index.css" />
+  <link rel="stylesheet" href="/css/output.css" />
+  <link rel="stylesheet" href="/css/animations.css" />
+</head>
+<body class="bg-bg-900 text-text-hi">
+  <!-- Splash de boot: cobre a tela com o mesmo fundo escuro do app até o JS
+       terminar o primeiro render, pra não deixar aparecer o shell vazio
+       (sidebar sem largura, header/main em branco) por um instante. Puro
+       HTML/CSS — pinta antes de qualquer módulo JS carregar. Removido por
+       app.js depois do primeiro renderRoute(). -->
+  <div id="boot-splash" class="fixed inset-0 z-[999] flex items-center justify-center bg-bg-900">
+    <div class="w-14 h-14 rounded-2xl glow-icon flex items-center justify-center font-bold text-xl breathe"
+         style="background:linear-gradient(160deg, #afdef5, #2d96cd); color:#ffffff;">M</div>
+  </div>
+
+  <!-- Mesh gradient de fundo — presente em todas as páginas, atrás de tudo -->
+  <div class="mesh-bg"><span></span><span></span><span></span></div>
+
+  <!-- Tela de login/cadastro — só aparece no modo web (MULTI_USER=true) sem
+       sessão válida. Fica fora de #shell pra não montar sidebar/header à
+       toa; app.js decide qual dos dois mostrar depois do boot. -->
+  <div id="auth-screen" class="hidden fixed inset-0 z-50 flex items-center justify-center px-4"></div>
+
+  <!-- Pergunta o nome numa instalação nova do app desktop (banco embutido
+       recém-criado, sem nome definido ainda). Ver client/js/pages/first-run.js. -->
+  <div id="first-run-screen" class="hidden fixed inset-0 z-50 flex items-center justify-center px-4"></div>
+
+  <div id="shell" class="flex h-screen overflow-hidden">
+    <!-- Sidebar montada via JS (components/sidebar.js) -->
+    <aside id="sidebar" class="w-[280px] shrink-0 h-full border-r border-stroke bg-bg-800/60 backdrop-blur-card shadow-[4px_0_24px_rgba(0,0,0,0.25)] overflow-hidden transition-[width] duration-300 ease-out"></aside>
+
+    <div class="flex-1 flex flex-col min-w-0">
+      <!-- Header montado via JS (app.js) -->
+      <header id="page-header" class="shrink-0 px-8 pt-8 pb-4"></header>
+
+      <!-- Conteúdo da página ativa -->
+      <main id="app" class="flex-1 overflow-y-auto px-8 pb-10"></main>
+    </div>
+  </div>
+
+  <!-- Roots de overlay -->
+  <div id="modal-root"></div>
+  <div id="toast-root" class="fixed top-5 right-5 z-[100] flex flex-col gap-2 items-end"></div>
+
+  <!-- Bibliotecas locais (offline-first, sem CDN) -->
+  <script src="/vendor/chart.js/chart.umd.js"></script>
+  <script src="/vendor/gsap/gsap.min.js"></script>
+  <script src="/vendor/sortablejs/Sortable.min.js"></script>
+  <script src="/vendor/canvas-confetti/confetti.browser.js"></script>
+
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>

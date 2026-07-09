@@ -1,0 +1,24 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: momentum_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-momentum_dev_pw}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-momentum}
+    ports:
+      - "3306:3306"
+    volumes:
+      - momentum_db_data:/var/lib/mysql
+      # Rodam automaticamente na primeira inicialização do container,
+      # já dentro do banco MYSQL_DATABASE (nessa ordem, por causa do prefixo numérico).
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql:ro
+      - ./database/seed.sql:/docker-entrypoint-initdb.d/2-seed.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-momentum_dev_pw}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  momentum_db_data:

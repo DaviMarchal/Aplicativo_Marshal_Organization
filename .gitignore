@@ -1,0 +1,17 @@
+node_modules/
+.env
+client/css/output.css
+release/
+dist/
+*.log
+.DS_Store
+
+# Build artifact do deploy web (regerado por npm run build:web)
+client/vendor/
+
+# MySQL portátil embutido no instalador (~500MB) — grande demais pro git,
+# fica só localmente pra quem for gerar o instalador desktop (ver README).
+vendor/mysql-embedded/
+
+# Arquivos internos do Claude Code, não fazem parte do projeto
+.claude/

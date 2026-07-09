@@ -1,0 +1,234 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   MOMENTUM — Design tokens
+   ========================================================================== */
+:root {
+  --bg-900: #0a0a0b;
+  --bg-800: #101012;
+  --bg-700: #16161a;
+  --stroke: rgba(255, 255, 255, 0.08);
+  --glass: rgba(255, 255, 255, 0.04);
+
+  --text-hi: #f5f5f7;
+  --text-mid: #a1a1aa;
+  --text-lo: #6b6b72;
+
+  --accent: #ff7a00;
+  --accent-soft: #ff9a3c;
+  --blue-glow: #2365ff;
+  --blue-soft: #6694ff;
+  --green: #34d399;
+  --red: #f43f5e;
+}
+
+/* Tema claro — mesma estrutura, invertida. Ativado via [data-theme="light"] no <html> */
+:root[data-theme="light"] {
+  --bg-900: #f4f4f6;
+  --bg-800: #ffffff;
+  --bg-700: #ffffff;
+  --stroke: rgba(10, 10, 11, 0.08);
+  --glass: rgba(10, 10, 11, 0.03);
+
+  --text-hi: #0a0a0b;
+  --text-mid: #55555c;
+  --text-lo: #8a8a92;
+}
+
+* {
+  -webkit-font-smoothing: antialiased;
+  scrollbar-width: thin;
+  scrollbar-color: var(--stroke) transparent;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--bg-900);
+  color: var(--text-hi);
+  font-family: "Inter", system-ui, sans-serif;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--stroke);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  transition: background-color 0.2s ease;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+  background-clip: padding-box;
+}
+:root[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(10, 10, 11, 0.2);
+  background-clip: padding-box;
+}
+
+.font-label {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================================
+   Componentes base reutilizáveis
+   ========================================================================== */
+.glass-card {
+  background: var(--glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--stroke);
+  border-radius: 20px;
+}
+
+.glass-panel {
+  background: var(--bg-800);
+  border: 1px solid var(--stroke);
+  border-radius: 20px;
+}
+
+/* Toggle switch (Configurações > Notificações) — checkbox nativo escondido,
+   trilho+bolinha desenhados via CSS irmão (peer). */
+.toggle-track {
+  display: inline-block;
+  width: 38px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--stroke);
+  position: relative;
+  transition: background 0.18s ease;
+  flex-shrink: 0;
+}
+.toggle-track::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.peer:checked ~ .toggle-track {
+  background: var(--accent);
+}
+.peer:checked ~ .toggle-track::after {
+  transform: translateX(16px);
+}
+
+.glow-icon {
+  box-shadow: 0 20px 60px rgba(35, 101, 255, 0.35), inset 0 -8px 20px rgba(255, 255, 255, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.btn-accent {
+  background: linear-gradient(180deg, var(--accent-soft), var(--accent));
+  color: #150900;
+  font-weight: 600;
+  border-radius: 999px;
+  transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.18s ease;
+  position: relative;
+  overflow: hidden;
+}
+.btn-accent:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(255, 122, 0, 0.35);
+}
+.btn-accent:active {
+  transform: translateY(0);
+}
+
+.btn-ghost {
+  background: var(--glass);
+  border: 1px solid var(--stroke);
+  color: var(--text-hi);
+  border-radius: 999px;
+  transition: background 0.18s ease, transform 0.18s ease;
+}
+.btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-1px);
+}
+
+/* Botão do connection-banner.js — sempre branco sobre o fundo vermelho
+   sólido do banner, independente do tema (claro/escuro) ativo. */
+.connection-banner-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: #fff;
+  transition: background 0.18s ease;
+}
+.connection-banner-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.input-glass {
+  background: var(--glass);
+  border: 1px solid var(--stroke);
+  border-radius: 12px;
+  color: var(--text-hi);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.input-glass:focus {
+  outline: none;
+  border-color: var(--blue-soft);
+  box-shadow: 0 0 0 3px rgba(35, 101, 255, 0.2);
+}
+
+/* O popup de <option> de um <select> é desenhado pelo Chromium/OS, não pelo
+   nosso CSS normal — sem isso, ele cai no branco-no-branco padrão do
+   navegador mesmo com .input-glass escuro no <select> fechado. */
+select.input-glass option {
+  background: var(--bg-800);
+  color: var(--text-hi);
+}
+select.input-glass option:checked,
+select.input-glass option:hover {
+  background: var(--accent);
+  color: #150900;
+}
+
+.pill {
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.pill-high {
+  background: rgba(244, 63, 94, 0.14);
+  color: #fca5b3;
+}
+.pill-medium {
+  background: rgba(255, 122, 0, 0.14);
+  color: var(--accent-soft);
+}
+.pill-low {
+  background: rgba(52, 211, 153, 0.14);
+  color: var(--green);
+}
+
+:focus-visible {
+  outline: 2px solid var(--blue-soft);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
