@@ -17,6 +17,10 @@ const pool = mysql.createPool({
   connectionLimit: 10,
   dateStrings: true, // datas/horas voltam como string 'YYYY-MM-DD', sem timezone shift do driver
   charset: "utf8mb4", // sem isso o driver conecta com um charset que corrompe acentos/emojis
+  // Bancos gerenciados na nuvem (TiDB Cloud, PlanetScale, etc.) exigem TLS —
+  // o MySQL local/embutido do desktop não usa e não precisa (DB_SSL fica de
+  // fora do .env local). "true" liga TLS com verificação normal de certificado.
+  ssl: process.env.DB_SSL === "true" ? {} : undefined,
 });
 
 module.exports = pool;
