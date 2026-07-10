@@ -22,7 +22,7 @@ let donutChartInstance = null;
 let forecastChartInstance = null;
 let savingsDonutChartInstance = null;
 
-export async function render(container, { setHeader, params: routeParams }) {
+export async function render(container, { setHeader, params: routeParams, isCurrent = () => true }) {
   container.innerHTML = `<div class="skeleton h-96 w-full"></div>`;
 
   const [accounts, categories] = await Promise.all([
@@ -228,12 +228,14 @@ export async function render(container, { setHeader, params: routeParams }) {
   ]);
 
   function refresh() {
-    render(container, { setHeader });
+    if (!isCurrent()) return;
+    render(container, { setHeader, isCurrent });
   }
 
   async function loadSummary() {
     try {
       const s = await api.get("/finance/summary");
+      if (!isCurrent()) return;
       const kpiHost = document.getElementById("fin-kpis");
       kpiHost.innerHTML = "";
       kpiHost.appendChild(finKpi("Saldo atual", s.saldo_atual, null));
@@ -249,6 +251,7 @@ export async function render(container, { setHeader, params: routeParams }) {
     updatePeriodButtons();
     try {
       const series = await api.get(`/finance/series?period=${currentPeriod}`);
+      if (!isCurrent()) return;
       const wrap = document.getElementById("line-chart-wrap");
       if (lineChartInstance) {
         lineChartInstance.destroy();
@@ -274,6 +277,7 @@ export async function render(container, { setHeader, params: routeParams }) {
   async function loadDonut() {
     try {
       const data = await api.get("/finance/donut");
+      if (!isCurrent()) return;
       const canvas = document.getElementById("donut-chart");
       if (!data.length) {
         canvas.parentElement.innerHTML = emptyStateHtml({ icon: ICONS.donut, title: "Sem gastos este mês" });
@@ -301,6 +305,7 @@ export async function render(container, { setHeader, params: routeParams }) {
   async function loadBudgets() {
     try {
       const budgets = await api.get("/finance/budgets");
+      if (!isCurrent()) return;
       const host = document.getElementById("budgets-list");
       if (!budgets.length) {
         host.innerHTML = emptyStateHtml({ icon: ICONS.metas, title: "Nenhum orçamento definido" });
@@ -330,6 +335,7 @@ export async function render(container, { setHeader, params: routeParams }) {
   async function loadRecurring(accountsList, categoriesList) {
     try {
       const recurring = await api.get("/finance/recurring");
+      if (!isCurrent()) return;
       const host = document.getElementById("recurring-list");
       if (!recurring.length) {
         host.innerHTML = emptyStateHtml({ icon: ICONS.rotina, title: "Nenhuma recorrente cadastrada", subtitle: "Cadastre o aluguel ou uma assinatura pra não esquecer de lançar todo mês." });
@@ -345,6 +351,7 @@ export async function render(container, { setHeader, params: routeParams }) {
   async function loadInstallments(accountsList, categoriesList) {
     try {
       const installments = await api.get("/finance/installments");
+      if (!isCurrent()) return;
       const host = document.getElementById("installments-list");
       if (!installments.length) {
         host.innerHTML = emptyStateHtml({ icon: ICONS.card, title: "Nenhuma parcelada cadastrada", subtitle: "Cadastre uma compra parcelada pra não esquecer de acompanhar." });
@@ -360,6 +367,7 @@ export async function render(container, { setHeader, params: routeParams }) {
   async function loadSavingsBoxes() {
     try {
       const boxes = await api.get("/finance/savings-boxes");
+      if (!isCurrent()) return;
       const host = document.getElementById("savings-boxes-list");
       if (!boxes.length) {
         host.innerHTML = emptyStateHtml({ icon: ICONS.wallet, title: "Nenhuma caixinha ainda", subtitle: "Crie uma caixinha pra separar dinheiro de um objetivo." });
@@ -375,6 +383,7 @@ export async function render(container, { setHeader, params: routeParams }) {
   async function loadInstallmentForecast() {
     try {
       const forecast = await api.get("/finance/installments/forecast?months=6");
+      if (!isCurrent()) return;
       const wrap = document.getElementById("forecast-chart-wrap");
       if (forecastChartInstance) {
         forecastChartInstance.destroy();
@@ -399,6 +408,7 @@ export async function render(container, { setHeader, params: routeParams }) {
   async function loadSavingsDonut() {
     try {
       const boxes = await api.get("/finance/savings-boxes");
+      if (!isCurrent()) return;
       const canvas = document.getElementById("savings-donut-chart");
       const legend = document.getElementById("savings-donut-legend");
       if (savingsDonutChartInstance) {
@@ -432,6 +442,7 @@ export async function render(container, { setHeader, params: routeParams }) {
   async function loadTransactions(accountsList, categoriesList) {
     try {
       const txs = await api.get("/finance/transactions");
+      if (!isCurrent()) return;
       const host = document.getElementById("tx-list");
       if (!txs.length) {
         host.innerHTML = emptyStateHtml({ icon: ICONS.card, title: "Nenhuma transação ainda", subtitle: "Adicione uma entrada ou saída pra começar." });

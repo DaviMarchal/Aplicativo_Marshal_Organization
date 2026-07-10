@@ -103,13 +103,27 @@ async function navigate(route, params = {}) {
   await renderRoute(route, params);
 }
 
+// Navegar rápido (ou o ⌘K/sidebar disparando duas vezes) inicia um
+// renderRoute() novo antes do anterior terminar de resolver suas chamadas
+// assíncronas. Sem essa "trava", a página antiga — ao finalmente terminar —
+// sobrescrevia o conteúdo da página nova (inclusive substituindo tudo por
+// "Não foi possível carregar esta página" se ela tivesse dado erro), e cada
+// função de carregamento dela tentava atualizar elementos que já não existem
+// mais no DOM, disparando uma enxurrada de toasts de erro. renderToken
+// garante que só a navegação mais recente tem permissão de mexer no shell.
+let renderToken = 0;
+
 async function renderRoute(route, params = {}) {
+  const myToken = ++renderToken;
+  const isCurrent = () => myToken === renderToken;
+
   renderSidebar(sidebarEl, route, navigate);
 
   if (appEl.dataset.rendered) {
     appEl.classList.add("route-fade-out");
     await new Promise((r) => setTimeout(r, 140));
   }
+  if (!isCurrent()) return;
 
   headerEl.innerHTML = defaultHeader(route);
   bindThemeToggle();
@@ -120,8 +134,18 @@ async function renderRoute(route, params = {}) {
 
   try {
     const mod = await pageLoaders[route]();
-    await mod.render(appEl, { setHeader: (html) => { setHeader(html); bindThemeToggle(); }, params });
+    if (!isCurrent()) return;
+    await mod.render(appEl, {
+      setHeader: (html) => {
+        if (!isCurrent()) return;
+        setHeader(html);
+        bindThemeToggle();
+      },
+      params,
+      isCurrent,
+    });
   } catch (err) {
+    if (!isCurrent()) return; // renderização antiga que falhou depois que já navegamos pra outro lugar — ignora
     console.error(err);
     appEl.innerHTML = `<div class="glass-card p-8 text-center text-text-mid">Não foi possível carregar esta página. ${err.message || ""}</div>`;
   }
