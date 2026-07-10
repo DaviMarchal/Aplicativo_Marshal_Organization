@@ -33,6 +33,13 @@ function createApp() {
   // diferentes, então o cookie de sessão precisa de CORS com credenciais e
   // SameSite=None. Modo desktop nunca bate essa rota (tudo é localhost).
   if (MULTI_USER) {
+    // O host do backend (Render, Railway, etc.) termina o HTTPS num proxy na
+    // frente e repassa pro app por HTTP interno — sem isso, o Express acha
+    // que toda conexão é insegura (req.secure = false) e o express-session
+    // recusa mandar o cookie com cookie.secure=true, deixando o login "não
+    // salvar" silenciosamente (sem erro nenhum, só nunca chega Set-Cookie).
+    app.set("trust proxy", 1);
+
     app.use(
       cors({
         origin: (process.env.CORS_ORIGIN || "").split(",").filter(Boolean),
