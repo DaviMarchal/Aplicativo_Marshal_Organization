@@ -83,7 +83,19 @@ function createApp() {
   app.get("/api/health", async (req, res) => {
     try {
       await pool.query("SELECT 1");
-      res.json({ ok: true });
+      res.json({
+        ok: true,
+        // diagnóstico temporário do bug de cookie de sessão no deploy web —
+        // remover depois de confirmado. Revela se o commit novo (trust
+        // proxy) já está no ar e como o Express está enxergando a conexão.
+        debug: {
+          trustProxy: app.get("trust proxy"),
+          nodeEnv: process.env.NODE_ENV,
+          multiUser: MULTI_USER,
+          reqSecure: req.secure,
+          xForwardedProto: req.headers["x-forwarded-proto"],
+        },
+      });
     } catch (err) {
       res.status(503).json({ ok: false, error: err.message });
     }
