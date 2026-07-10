@@ -601,7 +601,7 @@ async function listBudgets(req, res, next) {
        JOIN categories c ON c.id = b.category_id
        LEFT JOIN transactions tx ON tx.category_id = b.category_id AND tx.kind='expense' AND tx.tx_date BETWEEN ? AND ?
        WHERE c.user_id = ?
-       GROUP BY b.id`,
+       GROUP BY b.id, c.name, c.color`,
       [from, to, req.userId]
     );
     res.json(rows.map((r) => ({ ...r, spent: Number(r.spent) })));
@@ -689,7 +689,7 @@ async function summary(req, res, next) {
         `SELECT a.opening_balance,
                 COALESCE(SUM(CASE WHEN tx.kind='income' THEN tx.amount ELSE -tx.amount END),0) AS delta
          FROM accounts a LEFT JOIN transactions tx ON tx.account_id = a.id
-         WHERE a.user_id = ? GROUP BY a.id`,
+         WHERE a.user_id = ? GROUP BY a.id, a.opening_balance`,
         [req.userId]
       ),
     ]);
@@ -772,7 +772,7 @@ async function donut(req, res, next) {
               COALESCE(c.color, '#6B6B72') AS color, COALESCE(SUM(tx.amount),0) AS total
        FROM transactions tx LEFT JOIN categories c ON c.id = tx.category_id
        WHERE tx.user_id=? AND tx.kind='expense' AND tx.tx_date BETWEEN ? AND ?
-       GROUP BY c.id ORDER BY total DESC`,
+       GROUP BY c.id, c.name, c.color ORDER BY total DESC`,
       [req.userId, from, to]
     );
     res.json(rows.map((r) => ({ ...r, total: Number(r.total) })));

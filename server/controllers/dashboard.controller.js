@@ -52,7 +52,7 @@ async function get(req, res, next) {
       `SELECT a.opening_balance,
               COALESCE(SUM(CASE WHEN tx.kind='income' THEN tx.amount ELSE -tx.amount END),0) AS delta
        FROM accounts a LEFT JOIN transactions tx ON tx.account_id = a.id
-       WHERE a.user_id = ? GROUP BY a.id`,
+       WHERE a.user_id = ? GROUP BY a.id, a.opening_balance`,
       [req.userId]
     );
     const saldoMes = accountRows.reduce((s, a) => s + Number(a.opening_balance) + Number(a.delta), 0);

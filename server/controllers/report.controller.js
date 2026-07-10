@@ -56,7 +56,7 @@ async function financeReport(req, res, next) {
       `SELECT COALESCE(c.name, 'Sem categoria') AS name, COALESCE(SUM(tx.amount), 0) AS total
        FROM transactions tx LEFT JOIN categories c ON c.id = tx.category_id
        WHERE tx.user_id = ? AND tx.kind = 'expense' AND tx.tx_date BETWEEN ? AND ?
-       GROUP BY c.id ORDER BY total DESC`,
+       GROUP BY c.id, c.name ORDER BY total DESC`,
       [req.userId, from, to]
     );
 
@@ -65,7 +65,7 @@ async function financeReport(req, res, next) {
        FROM budgets b JOIN categories c ON c.id = b.category_id
        LEFT JOIN transactions tx ON tx.category_id = b.category_id AND tx.kind = 'expense' AND tx.tx_date BETWEEN ? AND ?
        WHERE c.user_id = ?
-       GROUP BY b.id ORDER BY c.name ASC`,
+       GROUP BY b.id, c.name ORDER BY c.name ASC`,
       [from, to, req.userId]
     );
 
