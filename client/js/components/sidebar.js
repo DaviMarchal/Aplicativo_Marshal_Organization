@@ -1,6 +1,7 @@
 // Sidebar fixa: logo, busca (⌘K), navegação com indicador ativo deslizante
 // (magic line), recolhível pra só ícones.
 import { api } from "../api.js";
+import { getCurrentUser } from "../auth.js";
 import { ICONS } from "./icons.js";
 
 // Reexportado pra quem já importava ICONS a partir da sidebar (pages antigas).
@@ -36,11 +37,14 @@ function ensureUserName() {
   api
     .get("/settings")
     .then((s) => {
-      cachedUserName = s.name || "Davi";
+      cachedUserName = s.name || "Você";
       if (lastRenderArgs) renderSidebar(...lastRenderArgs);
     })
     .catch(() => {
-      cachedUserName = "Davi";
+      // Sem sessão válida (401) ou erro de rede — nunca cai num nome de
+      // outra pessoa. api.js já cuida de mandar de volta pra tela de login
+      // quando é 401; isso aqui é só o rótulo enquanto isso não acontece.
+      cachedUserName = "Você";
     });
 }
 
@@ -118,7 +122,7 @@ export function renderSidebar(container, activeRoute, onNavigate) {
                <button type="button" id="collapse-toggle" title="Expandir menu" class="btn-ghost w-7 h-7 rounded-lg flex items-center justify-center text-xs text-text-mid">»</button>`
             : `<div class="min-w-0 flex-1">
                  <p class="text-xs text-text-hi font-medium truncate">${displayName}</p>
-                 <p class="text-[10px] text-text-lo font-label truncate">SINGLE-USER</p>
+                 <p class="text-[10px] text-text-lo font-label truncate">${getCurrentUser()?.multiUser ? getCurrentUser()?.email || "" : "APP LOCAL"}</p>
                </div>
                <button type="button" id="settings-trigger" title="Configurações" class="btn-ghost w-7 h-7 rounded-lg flex items-center justify-center text-text-mid shrink-0">
                  <span class="w-[15px] h-[15px] [&>svg]:w-full [&>svg]:h-full">${ICONS.gear}</span>

@@ -1,3 +1,23 @@
 [build]
   command = "npm run build:web"
   publish = "client"
+
+# Proxy transparente pro backend (Render) — sem isso, front (Netlify) e API
+# (Render) são domínios diferentes do ponto de vista do navegador, e o
+# cookie de sessão vira um cookie "cross-site". O Safari (iOS/macOS) e
+# navegadores in-app (WhatsApp, Instagram) bloqueiam esse tipo de cookie por
+# padrão — a sessão nunca persiste, tudo dá "Não autenticado" depois do
+# login. Com esse redirect (status 200 = rewrite, não redirect de verdade),
+# o navegador só enxerga marshalorganization.netlify.app o tempo todo, e o
+# cookie vira first-party — funciona em qualquer navegador.
+[[redirects]]
+  from = "/api/*"
+  to = "https://aplicativo-marshal-organization.onrender.com/api/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/print/*"
+  to = "https://aplicativo-marshal-organization.onrender.com/print/:splat"
+  status = 200
+  force = true

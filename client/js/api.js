@@ -15,6 +15,13 @@ export const API_ORIGIN = BASE.replace(/\/api$/, "");
 // pistas de que um erro 500 veio do driver mysql2 tentando conectar (servidor
 // de pé, banco fora do ar) — trata igual a uma falha de rede pro banner.
 const DB_DOWN_PATTERN = /ECONNREFUSED|PROTOCOL_CONNECTION_LOST|ETIMEDOUT|ENOTFOUND|ER_ACCESS_DENIED/;
+// Sessão morreu no meio do uso (cookie bloqueado pelo navegador, expirou,
+// etc.) — sem isso, o usuário fica preso numa tela "autenticada" que na
+// prática não consegue fazer nada, só acumulando toasts de "Não
+// autenticado.". Um reload único força o boot a checar de novo e cair na
+// tela de login. Exclui /auth/* pra não recarregar por causa de um login
+// com senha errada, que é um 401 esperado, não sessão perdida.
+let reloadingForAuth = false;
 
 async function request(method, path, body) {
   // credentials: 'include' — no deploy web o front (Netlify) e a API (host
@@ -41,6 +48,10 @@ async function request(method, path, body) {
   if (!res.ok) {
     const message = data?.error || `Erro ${res.status}`;
     if (DB_DOWN_PATTERN.test(message)) reportConnectionFailure();
+    if (res.status === 401 && !path.startsWith("/auth/") && !reloadingForAuth) {
+      reloadingForAuth = true;
+      location.reload();
+    }
     throw new Error(message);
   }
   return data;
