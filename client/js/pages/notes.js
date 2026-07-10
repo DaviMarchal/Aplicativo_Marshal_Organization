@@ -12,7 +12,7 @@ const COLORS = ["#16161A", "#1B2A4A", "#2A1B3D", "#1B3D2A", "#3D2A1B", "#3D1B24"
 let search = "";
 let searchDebounce = null;
 
-export async function render(container, { setHeader, params: routeParams }) {
+export async function render(container, { setHeader, params: routeParams, isCurrent = () => true }) {
   container.innerHTML = `<div class="skeleton h-96 w-full"></div>`;
 
   setHeader(`
@@ -50,6 +50,7 @@ export async function render(container, { setHeader, params: routeParams }) {
   if (routeParams?.open) {
     try {
       const note = await api.get(`/notes/${routeParams.open}`);
+      if (!isCurrent()) return;
       openNoteModal(note, load);
     } catch {
       // nota pode ter sido excluída entre a busca e o clique — ignora
@@ -63,9 +64,11 @@ export async function render(container, { setHeader, params: routeParams }) {
       if (search) params.set("search", search);
       notes = await api.get(`/notes?${params.toString()}`);
     } catch (err) {
+      if (!isCurrent()) return;
       container.innerHTML = `<div class="glass-card p-8 text-center text-text-mid">${err.message}</div>`;
       return;
     }
+    if (!isCurrent()) return;
     container.innerHTML = "";
     if (!notes.length) {
       container.appendChild(

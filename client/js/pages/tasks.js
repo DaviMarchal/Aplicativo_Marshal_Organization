@@ -19,11 +19,12 @@ const PRIORITY_LABEL = { high: "Alta", medium: "Média", low: "Baixa" };
 let state = { search: "", priority: "", tag: "", view: "board" };
 let searchDebounce = null;
 
-export async function render(container, { setHeader, params: routeParams }) {
+export async function render(container, { setHeader, params: routeParams, isCurrent = () => true }) {
   container.innerHTML = `<div class="skeleton h-96 w-full"></div>`;
 
   // busca todas as tasks (sem filtro) só pra montar a lista de tags disponíveis
   const allTasksForTags = await api.get("/tasks").catch(() => []);
+  if (!isCurrent()) return;
   const allTags = [...new Set(allTasksForTags.flatMap((t) => t.tags || []))].sort();
   if (state.tag && !allTags.includes(state.tag)) state.tag = "";
 
@@ -98,6 +99,7 @@ export async function render(container, { setHeader, params: routeParams }) {
   if (routeParams?.open) {
     try {
       const task = await api.get(`/tasks/${routeParams.open}`);
+      if (!isCurrent()) return;
       openTaskModal(task, load);
     } catch {
       // task pode ter sido excluída entre a busca e o clique — ignora
@@ -120,9 +122,11 @@ export async function render(container, { setHeader, params: routeParams }) {
         state.view === "board" ? api.get("/workouts/today") : [],
       ]);
     } catch (err) {
+      if (!isCurrent()) return;
       container.innerHTML = `<div class="glass-card p-8 text-center text-text-mid">${err.message}</div>`;
       return;
     }
+    if (!isCurrent()) return;
     const recurringCount = routinesToday.length + workoutsToday.length;
     document.getElementById("tasks-count").textContent =
       `${tasks.length} task${tasks.length === 1 ? "" : "s"}` + (recurringCount ? ` · ${recurringCount} de hoje` : "");

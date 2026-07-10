@@ -9,7 +9,7 @@ import { revealOnScroll } from "../components/scroll-reveal.js";
 import { themeToggleHtml } from "../app.js";
 import { todayStr, DAY_LABELS_SHORT, dayOfWeek } from "../format.js";
 
-export async function render(container, { setHeader, params: routeParams }) {
+export async function render(container, { setHeader, params: routeParams, isCurrent = () => true }) {
   container.innerHTML = `<div class="skeleton h-96 w-full"></div>`;
 
   setHeader(`
@@ -32,6 +32,7 @@ export async function render(container, { setHeader, params: routeParams }) {
     api.get("/workouts/plans").catch(() => []),
     api.get("/workouts/exercises").catch(() => []),
   ]);
+  if (!isCurrent()) return;
 
   document.getElementById("new-exercise").addEventListener("click", () => openExerciseModal(refresh));
   document.getElementById("new-plan").addEventListener("click", () => openPlanModal(null, exercises, refresh));
@@ -134,6 +135,7 @@ export async function render(container, { setHeader, params: routeParams }) {
         api.get(`/workouts/${planId}/history?month=${month}`),
         api.get(`/workouts/${planId}/streak`),
       ]);
+      if (!isCurrent()) return;
       document.getElementById("freq-streak").textContent =
         streakRes.streak > 0 ? `🔥 ${streakRes.streak} dia${streakRes.streak === 1 ? " seguido" : "s seguidos"}` : "Sem streak ativo ainda";
       renderWorkoutHeatmap(document.getElementById("freq-heatmap"), history);
@@ -143,7 +145,8 @@ export async function render(container, { setHeader, params: routeParams }) {
   }
 
   function refresh() {
-    render(container, { setHeader });
+    if (!isCurrent()) return;
+    render(container, { setHeader, isCurrent });
   }
 }
 

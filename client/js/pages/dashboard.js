@@ -9,16 +9,18 @@ import { skeletonGrid } from "../components/skeleton.js";
 import { greeting, formatDateLong, weekdayLabel, todayStr } from "../format.js";
 import { themeToggleHtml } from "../app.js";
 
-export async function render(container, { setHeader }) {
+export async function render(container, { setHeader, isCurrent = () => true }) {
   container.innerHTML = skeletonGrid(4) + `<div class="mt-6">${skeletonGrid(2)}</div>`;
 
   let data;
   try {
     data = await api.get("/dashboard");
   } catch (err) {
+    if (!isCurrent()) return;
     container.innerHTML = `<div class="glass-card p-8 text-center text-text-mid">${err.message}</div>`;
     return;
   }
+  if (!isCurrent()) return;
 
   setHeader(`
     <div class="flex items-center justify-between anim-stagger-in">

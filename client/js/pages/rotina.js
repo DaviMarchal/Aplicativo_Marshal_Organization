@@ -30,18 +30,19 @@ async function restoreRoutine(task, onDone) {
   }
 }
 
-export async function render(container, { setHeader, params: routeParams }) {
+export async function render(container, { setHeader, params: routeParams, isCurrent = () => true }) {
   container.innerHTML = `<div class="skeleton h-64 w-full"></div>`;
 
   const [today, all] = await Promise.all([
     api.get("/routines/today").catch(() => []),
     api.get("/tasks?is_routine=1").catch(() => []),
   ]);
+  if (!isCurrent()) return;
 
   // deep-link da busca (⌘K): #/rotina?open=3 abre direto o modal dessa rotina
   if (routeParams?.open) {
     const routine = all.find((t) => String(t.id) === String(routeParams.open));
-    if (routine) openRoutineModal(routine, () => render(container, { setHeader }));
+    if (routine) openRoutineModal(routine, () => render(container, { setHeader, isCurrent }));
   }
 
   const doneCount = today.filter((t) => t.done).length;
@@ -117,14 +118,17 @@ export async function render(container, { setHeader, params: routeParams }) {
     const month = todayStr().slice(0, 7);
     try {
       const days = await api.get(`/routines/heatmap?month=${month}`);
+      if (!isCurrent()) return;
       renderHeatmap(document.getElementById("heatmap-grid"), days);
     } catch (err) {
+      if (!isCurrent()) return;
       document.getElementById("heatmap-grid").innerHTML = `<p class="text-text-mid text-sm">Não foi possível carregar o heatmap.</p>`;
     }
   }
 
   function refresh() {
-    render(container, { setHeader });
+    if (!isCurrent()) return;
+    render(container, { setHeader, isCurrent });
   }
 }
 

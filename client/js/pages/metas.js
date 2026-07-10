@@ -11,7 +11,7 @@ import { todayStr, formatDateShort } from "../format.js";
 
 let selectedGoalId = null;
 
-export async function render(container, { setHeader, params: routeParams }) {
+export async function render(container, { setHeader, params: routeParams, isCurrent = () => true }) {
   container.innerHTML = `<div class="skeleton h-96 w-full"></div>`;
 
   setHeader(`
@@ -30,6 +30,7 @@ export async function render(container, { setHeader, params: routeParams }) {
   attachRipple(document.getElementById("new-goal"));
 
   const goals = await api.get("/goals").catch(() => []);
+  if (!isCurrent()) return;
 
   if (!goals.length) {
     container.innerHTML = "";
@@ -86,7 +87,7 @@ export async function render(container, { setHeader, params: routeParams }) {
     `;
     el.addEventListener("click", () => {
       selectedGoalId = g.id;
-      render(container, { setHeader });
+      render(container, { setHeader, isCurrent });
     });
     return el;
   }
@@ -101,6 +102,7 @@ export async function render(container, { setHeader, params: routeParams }) {
       api.get(`/goals/${goal.id}/checkins`),
       api.get(`/goals/${goal.id}/links`),
     ]);
+    if (!isCurrent()) return;
 
     const celebratedKey = `momentum-celebrated-goal-${goal.id}`;
     if (progress.percent >= 100 && goal.status === "active" && !sessionStorage.getItem(celebratedKey)) {
@@ -169,7 +171,7 @@ export async function render(container, { setHeader, params: routeParams }) {
           note: fd.get("note") || null,
         });
         toastSuccess("Nota registrada");
-        render(container, { setHeader });
+        render(container, { setHeader, isCurrent });
       } catch (err) {
         toastError(err.message);
       }
@@ -222,13 +224,13 @@ export async function render(container, { setHeader, params: routeParams }) {
 
     host.appendChild(card);
 
-    card.querySelector("#edit-goal").addEventListener("click", () => openGoalModal(goal, () => render(container, { setHeader })));
+    card.querySelector("#edit-goal").addEventListener("click", () => openGoalModal(goal, () => render(container, { setHeader, isCurrent })));
     card.querySelector("#complete-goal")?.addEventListener("click", async () => {
       try {
         await api.put(`/goals/${goal.id}`, { ...goal, status: "completed" });
         celebrate();
         toastSuccess("Meta concluída! 🎉");
-        render(container, { setHeader });
+        render(container, { setHeader, isCurrent });
       } catch (err) {
         toastError(err.message);
       }
@@ -239,7 +241,7 @@ export async function render(container, { setHeader, params: routeParams }) {
       try {
         await api.put(`/goals/${goal.id}`, { ...goal, status: "abandoned" });
         toastSuccess("Meta marcada como abandonada");
-        render(container, { setHeader });
+        render(container, { setHeader, isCurrent });
       } catch (err) {
         toastError(err.message);
       }
@@ -247,7 +249,7 @@ export async function render(container, { setHeader, params: routeParams }) {
   }
 
   function refresh() {
-    render(container, { setHeader });
+    render(container, { setHeader, isCurrent });
   }
 }
 

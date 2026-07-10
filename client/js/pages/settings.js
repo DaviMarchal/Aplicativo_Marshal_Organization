@@ -34,7 +34,7 @@ function toggleRow(id, label, checked) {
   `;
 }
 
-export async function render(container, { setHeader }) {
+export async function render(container, { setHeader, isCurrent = () => true }) {
   container.innerHTML = `<div class="skeleton h-96 w-full"></div>`;
 
   setHeader(`
@@ -51,9 +51,11 @@ export async function render(container, { setHeader }) {
   try {
     settings = await api.get("/settings");
   } catch (err) {
+    if (!isCurrent()) return;
     container.innerHTML = `<div class="glass-card p-8 text-center text-text-mid">${err.message}</div>`;
     return;
   }
+  if (!isCurrent()) return;
 
   const user = getCurrentUser();
   const multiUser = !!user?.multiUser;
