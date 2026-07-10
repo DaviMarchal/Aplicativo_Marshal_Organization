@@ -16,15 +16,16 @@ if (!PASSWORD) {
 
 async function main() {
   const conn = await mysql.createConnection({ host: HOST, port: PORT, user: USER, password: PASSWORD, database: DB_NAME, ssl: {} });
-  const [rows] = await conn.query("SELECT id, email FROM users WHERE email LIKE 'teste-e2e%'");
+  // Só contas com prefixo "teste-" no e-mail (criadas por scripts de
+  // verificação) — nunca mexe na tabela sessions, que pode ter gente de
+  // verdade logada agora.
+  const [rows] = await conn.query("SELECT id, email FROM users WHERE email LIKE 'teste-%'");
   console.log(`Encontradas ${rows.length} contas de teste:`, rows.map((r) => r.email));
   if (rows.length) {
     const ids = rows.map((r) => r.id);
     await conn.query(`DELETE FROM users WHERE id IN (${ids.map(() => "?").join(",")})`, ids);
     console.log("Contas de teste removidas.");
   }
-  await conn.query("DELETE FROM sessions");
-  console.log("Sessões antigas limpas.");
   const [[remaining]] = await conn.query("SELECT COUNT(*) AS n FROM users");
   console.log("Usuários restantes (reais):", remaining.n);
   await conn.end();
