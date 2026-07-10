@@ -38,21 +38,43 @@
   <div id="first-run-screen" class="hidden fixed inset-0 z-50 flex items-center justify-center px-4"></div>
 
   <div id="shell" class="flex h-screen overflow-hidden">
-    <!-- Sidebar montada via JS (components/sidebar.js) -->
-    <aside id="sidebar" class="w-[280px] shrink-0 h-full border-r border-stroke bg-bg-800/60 backdrop-blur-card shadow-[4px_0_24px_rgba(0,0,0,0.25)] overflow-hidden transition-[width] duration-300 ease-out"></aside>
+    <!-- Backdrop do menu em telas pequenas — sidebar vira um drawer que
+         desliza por cima do conteúdo (não empurra), fecha ao tocar fora. -->
+    <div id="sidebar-backdrop" class="hidden fixed inset-0 z-30 bg-black/50 md:hidden"></div>
+
+    <!-- Sidebar montada via JS (components/sidebar.js). Em telas < md fica
+         fixa fora da tela (-translate-x-full) até #menu-toggle abrir. -->
+    <aside id="sidebar" class="fixed md:static inset-y-0 left-0 z-40 shrink-0 h-full border-r border-stroke bg-bg-800/95 md:bg-bg-800/60 backdrop-blur-card shadow-[4px_0_24px_rgba(0,0,0,0.25)] overflow-hidden -translate-x-full md:translate-x-0 transition-transform md:transition-[width] duration-300 ease-out"></aside>
 
     <div class="flex-1 flex flex-col min-w-0">
+      <!-- Barra fixa só em telas pequenas — não é sobrescrita pelo header de
+           cada página (que troca de conteúdo o tempo todo via setHeader()),
+           então o botão de abrir o menu sempre fica disponível. -->
+      <div class="md:hidden shrink-0 flex items-center gap-3 px-4 pt-4">
+        <button type="button" id="menu-toggle" aria-label="Abrir menu"
+                class="btn-ghost w-9 h-9 rounded-lg flex items-center justify-center text-text-hi shrink-0">
+          <span class="w-[18px] h-[18px]">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </span>
+        </button>
+        <div class="flex items-center gap-2 min-w-0">
+          <div class="w-6 h-6 shrink-0 rounded-lg glow-icon flex items-center justify-center font-bold text-[11px]"
+               style="background:linear-gradient(160deg, #afdef5, #2d96cd); color:#ffffff;">M</div>
+          <span class="font-semibold text-text-hi text-sm truncate">Marshal Organization</span>
+        </div>
+      </div>
+
       <!-- Header montado via JS (app.js) -->
-      <header id="page-header" class="shrink-0 px-8 pt-8 pb-4"></header>
+      <header id="page-header" class="shrink-0 px-4 pt-5 pb-3 md:px-8 md:pt-8 md:pb-4"></header>
 
       <!-- Conteúdo da página ativa -->
-      <main id="app" class="flex-1 overflow-y-auto px-8 pb-10"></main>
+      <main id="app" class="flex-1 overflow-y-auto px-4 pb-6 md:px-8 md:pb-10"></main>
     </div>
   </div>
 
   <!-- Roots de overlay -->
   <div id="modal-root"></div>
-  <div id="toast-root" class="fixed top-5 right-5 z-[100] flex flex-col gap-2 items-end"></div>
+  <div id="toast-root" class="fixed top-5 left-5 right-5 sm:left-auto z-[100] flex flex-col gap-2 items-stretch sm:items-end"></div>
 
   <!-- Bibliotecas locais (offline-first, sem CDN) -->
   <script src="/vendor/chart.js/chart.umd.js"></script>

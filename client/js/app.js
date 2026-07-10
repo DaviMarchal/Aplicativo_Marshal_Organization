@@ -10,6 +10,22 @@ import { maybeShowFirstRunName } from "./pages/first-run.js";
 const appEl = document.getElementById("app");
 const sidebarEl = document.getElementById("sidebar");
 const headerEl = document.getElementById("page-header");
+const sidebarBackdropEl = document.getElementById("sidebar-backdrop");
+
+// Sidebar-drawer em telas pequenas (< md) — em telas maiores essas classes
+// não fazem efeito nenhum (md:translate-x-0 do index.html sempre vence).
+function openMobileSidebar() {
+  sidebarEl.classList.remove("-translate-x-full");
+  sidebarEl.classList.add("translate-x-0");
+  sidebarBackdropEl.classList.remove("hidden");
+}
+function closeMobileSidebar() {
+  sidebarEl.classList.add("-translate-x-full");
+  sidebarEl.classList.remove("translate-x-0");
+  sidebarBackdropEl.classList.add("hidden");
+}
+document.getElementById("menu-toggle").addEventListener("click", openMobileSidebar);
+sidebarBackdropEl.addEventListener("click", closeMobileSidebar);
 
 const routeTitles = {
   ...Object.fromEntries(NAV_ITEMS.map((i) => [i.route, i.label])),
@@ -76,6 +92,7 @@ function bindThemeToggle() {
 }
 
 async function navigate(route, params = {}) {
+  closeMobileSidebar();
   if (!pageLoaders[route]) route = "dashboard";
   const qs = new URLSearchParams(params).toString();
   const targetHash = `#/${route}${qs ? `?${qs}` : ""}`;

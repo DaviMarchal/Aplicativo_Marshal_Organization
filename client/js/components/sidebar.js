@@ -17,7 +17,14 @@ export const NAV_ITEMS = [
 ];
 
 const COLLAPSE_KEY = "momentum-sidebar-collapsed";
-let collapsed = localStorage.getItem(COLLAPSE_KEY) === "1";
+let rawCollapsed = localStorage.getItem(COLLAPSE_KEY) === "1";
+
+// Em telas pequenas a sidebar vira um drawer por cima do conteúdo (ver
+// index.html/app.js) — "recolher pra ícones" só faz sentido como economia de
+// espaço permanente no desktop, então ignora collapsed nesse caso.
+function isMobileViewport() {
+  return window.matchMedia("(max-width: 767px)").matches;
+}
 
 // Nome de exibição vem de /api/settings (editável em Configurações). Cacheado
 // em memória — busca uma vez e só refaz a chamada quando invalidado.
@@ -49,6 +56,8 @@ export function renderSidebar(container, activeRoute, onNavigate) {
   ensureUserName();
   const displayName = cachedUserName || "Davi";
   const initial = displayName.trim().charAt(0).toUpperCase() || "D";
+  const mobile = isMobileViewport();
+  const collapsed = mobile ? false : rawCollapsed;
 
   container.classList.toggle("w-[280px]", !collapsed);
   container.classList.toggle("w-[76px]", collapsed);
@@ -62,7 +71,10 @@ export function renderSidebar(container, activeRoute, onNavigate) {
           ${collapsed ? "" : `<span class="font-semibold text-text-hi text-[15px] truncate">Marshal Organization</span>`}
         </div>
         ${
-          collapsed
+          mobile
+            ? `<button type="button" id="sidebar-close" title="Fechar menu" aria-label="Fechar menu"
+                       class="btn-ghost w-7 h-7 rounded-lg flex items-center justify-center text-text-mid shrink-0">✕</button>`
+            : collapsed
             ? ""
             : `<button type="button" id="collapse-toggle" title="Recolher menu"
                        class="btn-ghost w-7 h-7 rounded-lg flex items-center justify-center text-xs text-text-mid shrink-0">«</button>`
@@ -128,9 +140,16 @@ export function renderSidebar(container, activeRoute, onNavigate) {
   container.querySelector("#search-trigger").addEventListener("click", () => openCommandPalette(onNavigate));
   container.querySelector("#settings-trigger")?.addEventListener("click", () => onNavigate("settings"));
   container.querySelector("#collapse-toggle")?.addEventListener("click", () => {
-    collapsed = !collapsed;
-    localStorage.setItem(COLLAPSE_KEY, collapsed ? "1" : "0");
+    rawCollapsed = !rawCollapsed;
+    localStorage.setItem(COLLAPSE_KEY, rawCollapsed ? "1" : "0");
     renderSidebar(container, activeRoute, onNavigate);
+  });
+  // Fecha o drawer mobile diretamente (sem depender de importar de app.js,
+  // que já importa daqui — evita ciclo de import por causa de um botão só).
+  container.querySelector("#sidebar-close")?.addEventListener("click", () => {
+    container.classList.add("-translate-x-full");
+    container.classList.remove("translate-x-0");
+    document.getElementById("sidebar-backdrop")?.classList.add("hidden");
   });
 }
 

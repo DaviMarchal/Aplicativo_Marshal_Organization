@@ -16,7 +16,7 @@ const COLORS = {
 export function toast(message, type = "success", duration = 3200) {
   const el = document.createElement("div");
   el.className =
-    "toast-in glass-card px-4 py-3 rounded-2xl shadow-card flex items-center gap-3 min-w-[220px] max-w-[360px]";
+    "toast-in glass-card px-4 py-3 rounded-2xl shadow-card flex items-center gap-3 w-full sm:min-w-[220px] sm:w-auto sm:max-w-[360px]";
   el.innerHTML = `
     <span class="flex items-center justify-center w-6 h-6 rounded-full text-sm font-bold shrink-0"
           style="background:${COLORS[type]}22; color:${COLORS[type]}">${ICONS[type] || ICONS.info}</span>
@@ -49,7 +49,7 @@ export const toastInfo = (msg) => toast(msg, "info");
 export function toastUndo(message, onUndo, duration = 6000) {
   const el = document.createElement("div");
   el.className =
-    "toast-in glass-card px-4 py-3 rounded-2xl shadow-card flex items-center gap-3 min-w-[240px] max-w-[380px]";
+    "toast-in glass-card px-4 py-3 rounded-2xl shadow-card flex items-center gap-3 w-full sm:min-w-[240px] sm:w-auto sm:max-w-[380px]";
   el.innerHTML = `
     <span class="flex items-center justify-center w-6 h-6 rounded-full text-sm font-bold shrink-0"
           style="background:var(--red)22; color:var(--red)">✕</span>
